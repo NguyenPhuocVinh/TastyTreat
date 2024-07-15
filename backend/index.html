@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculate Distances</title>
+</head>
+<body>
+    <button onclick="getLocation()">Get My Location</button>
+    <ul id="shopDistances"></ul>
+
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const userLatitude = position.coords.latitude;
+                    const userLongitude = position.coords.longitude;
+
+                    sendPositionToBackend(userLatitude, userLongitude);
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        function sendPositionToBackend(latitude, longitude) {
+            fetch('http://localhost:4000/api/v1/shop/calculate-distance', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ location: { latitude, longitude } })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const shopDistances = document.getElementById('shopDistances');
+                shopDistances.innerHTML = '';
+                data.forEach(shop => {
+                    const li = document.createElement('li');
+                    li.textContent = `Shop: ${shop.shop.name}, Address: ${shop.shop.address}, Distance: ${shop.distance.toFixed(2)} km`;
+                    shopDistances.appendChild(li);
+                });
+            })
+            .catch(error => {
+                console.error('Error calculating distances:', error);
+            });
+        }
+    </script>
+</body>
+</html>
