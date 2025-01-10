@@ -19,7 +19,6 @@ export const cartServices = {
                 // Nếu sản phẩm đã tồn tại, cộng thêm số lượng
                 product.quantity += quantity;
             } else {
-                // Nếu sản phẩm chưa tồn tại trong giỏ hàng, thêm mới
                 cart.products.push({ productId, quantity });
             }
             }

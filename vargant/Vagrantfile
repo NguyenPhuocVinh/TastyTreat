@@ -1,0 +1,43 @@
+NUM_MASTER_NODE = 1
+NUM_WORKER_NODE = 2
+
+IP_NW = "192.168.56."
+MASTER_IP_START = 10  # Starting IP for master nodes
+NODE_IP_START = 20    # Starting IP for worker nodes
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "alvistack/ubuntu-24.04"
+  config.vm.box_version = "20241223.1.1"
+  config.vm.box_check_update = false
+
+  # Define master nodes
+  (1..NUM_MASTER_NODE).each do |i|
+    config.vm.define "master" do |node|
+      node.vm.provider "virtualbox" do |vb|
+        vb.name = "master"
+        vb.memory = 3072
+        vb.cpus = 2
+      end
+      node.vm.hostname = "master"
+      node.vm.network :private_network, ip: IP_NW + "#{MASTER_IP_START + i}"
+    end
+  end
+
+  # Define worker nodes
+  (1..NUM_WORKER_NODE).each do |i|
+    config.vm.define "worker-#{i}" do |node|
+      node.vm.provider "virtualbox" do |vb|
+        vb.name = "worker-#{i}"
+        vb.memory = 1048
+        vb.cpus = 2
+      end
+      node.vm.hostname = "worker-#{i}"
+      node.vm.network :private_network, ip: IP_NW + "#{NODE_IP_START + i}"
+    end
+  end
+
+  # config.vm.provision :ansible do |ansible|
+  #   ansible.playbook = "ansible/setup_k8s.yml"
+  #   ansible.limit = "all"
+  # end
+end
